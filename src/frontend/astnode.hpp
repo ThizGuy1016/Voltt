@@ -7,12 +7,10 @@
 namespace Voltt {
 namespace ASTNode {
 
+using NodePrecision = uint16_t;
+
 enum NodeType : uint8_t {
-	TypeStatement,
 	TypeVariableDecl,
-	TypeFunctionDecl,
-	TypePrototype,
-	TypePrototypeArg,
 	TypeExprBinary,
 	TypeTy,
 	TypeLiteralNumeric,
@@ -22,42 +20,22 @@ enum NodeType : uint8_t {
 
 struct Node;
 
-struct NodeStatement {
-	Node* expr;
-};
-
 struct NodeVariableDecl {
 	bool is_const;
 
-	Node* ident;
-	Node* type;
-	Node* expr;
-};
-
-struct NodePrototypeArg {
-	char const* raw;
-	Node* type;
-};
-
-struct NodeProtype {
-	std::vector<Node*> args;
-};
-
-struct NodeFunctionDecl {
-	Node* name;
-	Node* proto;
-	Node* ret;
-	Node* body;
+	NodePrecision ident;
+	NodePrecision type;
+	NodePrecision expr;
 };
 
 struct NodeExprBinary {
 	Tok::TokID op;
-	Node* left;
-	Node* right;
+	NodePrecision left;
+	NodePrecision right;
 };
 
 struct NodeTy {
-	std::vector<Node*> ty;
+	std::vector<NodePrecision> ty;
 };
 
 struct NodeLiteralNumeric {
@@ -83,11 +61,10 @@ struct Node {
 		NodeTy ty_data;
 		NodeIdent ident_data;
 		NodeVariableDecl variable_decl_data;
-		NodePrototypeArg prototype_arg_data;
-		NodeProtype prototype_data;
-		NodeFunctionDecl function_decl_data;
 	} data;
 };
+
+constexpr size_t NODE_SIZE = sizeof(ASTNode::Node);
 
 } // namespace ASTNode
 } // namespace Voltt

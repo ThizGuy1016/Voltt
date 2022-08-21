@@ -2,16 +2,12 @@
 
 #include "tokenizer.hpp"
 #include "astnode.hpp"
-#include "astgen.hpp"
+//#include "astgen.hpp"
 
 namespace Voltt {
 namespace Parser {
 
 struct CTX;
-
-auto next_t(CTX*) -> Tok::Token*;
-auto next_expecting(CTX, const Tok::TokID) -> Tok::Token*;
-auto peek_expecting(CTX, const Tok::TokID) -> const bool;
 
 auto alloc_node() -> ASTNode::Node*;
 
@@ -59,7 +55,8 @@ auto parse_type(CTX*) -> ASTNode::Node*;
  *	: Integer Literal
  *	;
 */
-auto parse_literal_numeric(CTX*) -> ASTNode::Node*;
+//auto parse_literal_numeric(CTX*) -> ASTNode::Node*;
+auto parse_literal_numeric(CTX*) -> const bool;
 
 /*
  * Literal Numeric
@@ -112,10 +109,10 @@ auto parse_fn_decl(CTX*) -> ASTNode::Node*;
 
 struct CTX {
 	size_t tok_pos;
-	Tok::Token* tok_lookahead;
+	ASTNode::NodePrecision node_pos;
 
 	std::vector<Tok::Token> tok_buf;
-	std::vector<ASTNode::Node*> body;
+	std::vector<ASTNode::Node> node_pool;
 
 	const char* fname;
 	const char* contents;
@@ -126,27 +123,26 @@ struct CTX {
 		fname(_t->fname),
 		contents(std::move(_t->contents))
 	{
-		tok_lookahead = &tok_buf[1];
+		node_pool.reserve(tok_buf.size());
 	}
 
 	~CTX()
 	{
-		tok_lookahead = nullptr;
-		
-		//std::free((void*)fname);
 		fname = nullptr;
 
 		std::free((void*)contents);
 		contents = nullptr;
-
-		for ( ASTNode::Node* node : body ) ASTGen::ast_free_node(node);
-		if (body.size()) body[0] = nullptr;
 	}
 };
 
 auto inline curr_t(CTX* _ctx) -> Tok::Token&
 {
 	return _ctx->tok_buf[_ctx->tok_pos];
+}
+
+auto inline next_t(CTX* _ctx) -> Tok::Token&
+{
+	return (_ctx->tok_pos+1 >= _ctx->tok_buf.size()) ? curr_t(_ctx) : _ctx->tok_buf[++_ctx->tok_pos]; 
 }
 
 } // namespace Parser
