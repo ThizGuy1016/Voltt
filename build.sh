@@ -7,6 +7,3 @@ set -e
 
 # add -DNDEBUG
 clang++ -g -O0 ${CPP_FILES} `llvm-config --cxxflags --ldflags --system-libs --libs core` -o voltt
-
-echo "RUNNING voltt"
-./voltt

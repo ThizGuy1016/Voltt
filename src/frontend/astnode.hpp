@@ -1,12 +1,11 @@
 #pragma once
 
 #include "tok.hpp"
-#include "../mem.hpp"
+
+#include <vector>
 
 namespace Voltt {
 namespace ASTNode {
-
-using NodePrecision = Mem::RelPrecision;
 
 enum NodeType : uint8_t {
 	TypeStatement,
@@ -41,12 +40,13 @@ struct NodePrototypeArg {
 };
 
 struct NodeProtype {
-	char const* raw;
-	Node* args;
+	std::vector<Node*> args;
 };
 
 struct NodeFunctionDecl {
+	Node* name;
 	Node* proto;
+	Node* ret;
 	Node* body;
 };
 
@@ -57,7 +57,7 @@ struct NodeExprBinary {
 };
 
 struct NodeTy {
-	Node* ty;
+	std::vector<Node*> ty;
 };
 
 struct NodeLiteralNumeric {

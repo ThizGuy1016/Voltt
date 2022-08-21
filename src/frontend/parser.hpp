@@ -9,7 +9,6 @@ namespace Parser {
 
 struct CTX;
 
-auto curr_t(CTX*) -> Tok::Token&;
 auto next_t(CTX*) -> Tok::Token*;
 auto next_expecting(CTX, const Tok::TokID) -> Tok::Token*;
 auto peek_expecting(CTX, const Tok::TokID) -> const bool;
@@ -97,6 +96,20 @@ auto parse_addative_expr(CTX*) -> ASTNode::Node*;
 */ 
 auto parse_var_decl(CTX*) -> ASTNode::Node*;
 
+/*
+ * Prototype Argument
+ * Ident: Type
+*/
+auto parse_proto_arg(CTX*) -> ASTNode::Node*;
+
+auto parse_proto(CTX*) -> ASTNode::Node*;
+
+/*
+ * Function Declaration
+ * : Function '(' ProtoTypeArgument.. ')' -> return {}
+*/
+auto parse_fn_decl(CTX*) -> ASTNode::Node*;
+
 struct CTX {
 	size_t tok_pos;
 	Tok::Token* tok_lookahead;
@@ -127,10 +140,14 @@ struct CTX {
 		contents = nullptr;
 
 		for ( ASTNode::Node* node : body ) ASTGen::ast_free_node(node);
-		body[0] = nullptr;
+		if (body.size()) body[0] = nullptr;
 	}
 };
 
+auto inline curr_t(CTX* _ctx) -> Tok::Token&
+{
+	return _ctx->tok_buf[_ctx->tok_pos];
+}
 
 } // namespace Parser
 } // namespace Voltt

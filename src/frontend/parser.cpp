@@ -1,12 +1,9 @@
 #include "parser.hpp"
+#include "astnode.hpp"
+#include "tok.hpp"
 
 namespace Voltt {
 namespace Parser {
-
-auto curr_t(CTX* _ctx) -> Tok::Token&
-{
-	return _ctx->tok_buf[_ctx->tok_pos];
-}
 
 auto next_t(CTX* _ctx) -> Tok::Token*
 {
@@ -45,7 +42,7 @@ auto parse(CTX* _ctx) -> void
 		if (node == nullptr) return;
 		switch (curr_t(_ctx).id) {
 			default: Logger::unhandled_case_err("Expressions must end with a newline");
-			
+
 			case Tok::TokenParenClose:
 				Logger::cmperr(
 					Tok::dump_errctx(curr_t(_ctx), _ctx->contents, _ctx->fname),
@@ -199,6 +196,54 @@ auto parse_addative_expr(CTX* _ctx) -> ASTNode::Node*
 	return left;
 }
 
+auto parse_proto_arg(CTX* _ctx) -> ASTNode::Node*
+{
+	ASTNode::Node* arg = alloc_node();
+	arg->type = ASTNode::TypePrototypeArg;
+
+	arg->data.prototype_arg_data.raw = Tok::to_str(curr_t(_ctx), _ctx->contents);
+	next_t(_ctx); // consume ident
+	switch(curr_t(_ctx).id) {
+		default: Logger::unhandled_case_err("Function argument does not declare a type");
+
+		case Tok::TokenColonSymbol:
+			next_t(_ctx); // consume ident
+	}
+
+	arg->data.prototype_arg_data.type = parse_type(_ctx);
+
+	return arg;
+}
+
+auto parse_proto(CTX* _ctx) -> ASTNode::Node*
+{
+	ASTNode::Node* proto = alloc_node();
+	proto->type = ASTNode::TypePrototype;
+	proto->data.prototype_data.args.reserve(4);
+
+	for (;;) {
+		switch (curr_t(_ctx).id) {
+			default: Logger::unhandled_case_err("Invalid expression for function argument");
+			
+			case Tok::TokenParenClose:
+				goto proto_recurse_end;
+
+			case Tok::TokenComma:
+				next_t(_ctx); // consume ','
+				continue;
+
+			case Tok::TokenIdent:
+				auto args = parse_proto_arg(_ctx);
+				proto->data.prototype_data.args.push_back(std::move(args));	
+				continue;
+		}
+	}
+
+	proto_recurse_end:
+	
+	return proto;
+}
+
 auto parse_var_decl(CTX* _ctx) -> ASTNode::Node*
 {
 	ASTNode::Node* variable = alloc_node();
@@ -265,13 +310,15 @@ auto parse_type(CTX* _ctx) -> ASTNode::Node*
 				Logger::CompErrID::INVALID_TYPE_IDENTIFIER
 			);
 			return nullptr;
-		
+
+		// loop here to collect all type idents
+
 		case VTYPES_CASE:
 		case Tok::TokenIdent:
 			ASTNode::Node* type = alloc_node();
 			type->type = ASTNode::TypeTy;
 			type->tok = std::move(curr_t(_ctx));
-			type->data.ty_data.ty = parse_ident(_ctx);
+			type->data.ty_data.ty.push_back(parse_ident(_ctx));
 
 			return type;
 	}

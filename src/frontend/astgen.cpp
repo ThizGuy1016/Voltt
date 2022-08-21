@@ -28,7 +28,7 @@ auto ast_free_node(ASTNode::Node* _node) -> void
 			}
 
 		case ASTNode::TypeTy:
-			ast_free_node(_node->data.ty_data.ty);
+			for ( ASTNode::Node* node : _node->data.ty_data.ty ) ast_free_node(node);
 			goto node_free;
 
 		case ASTNode::TypeVariableDecl:
@@ -105,7 +105,7 @@ auto ast_dump_node(std::ostream& _os, const ASTNode::Node* _node, const size_t _
 
 		case ASTNode::TypeTy:
 			
-			ast_dump_node(_os, _node->data.ty_data.ty, _level);
+			for ( const ASTNode::Node* node : _node->data.ty_data.ty ) ast_dump_node(_os, node);
 
 			return;
 
