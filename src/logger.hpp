@@ -86,16 +86,6 @@ auto debug(const DebugCtx_t& _ctx, const DebugErrID::DebugErrID_t _id, MSG _msg)
 	abort();
 }
 
-template<typename MSG>
-auto msg(const DebugCtx_t& _ctx, MSG _msg) -> void
-{
-	_os << "MSG![]:\n";
-	_os << _ctx << '\n';
-	_os << " |\n";
-	_os << " | " << _msg << std::endl;
-	_os << " |\n";
-}
-
 auto cmperr(const CompCtx_t, const CompErrID::CompErrID_t) -> void;
 auto cmperr(const CompErrID::CompErrID_t) -> void;
 

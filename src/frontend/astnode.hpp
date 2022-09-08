@@ -1,8 +1,7 @@
 #pragma once
 
+#include "../list.hpp"
 #include "tok.hpp"
-
-#include <vector>
 
 namespace Voltt {
 namespace ASTNode {
@@ -35,7 +34,8 @@ struct NodeExprBinary {
 };
 
 struct NodeTy {
-	std::vector<NodePrecision> ty;
+	NodePrecision ty;
+	NodePrecision next;
 };
 
 struct NodeLiteralNumeric {
@@ -65,6 +65,10 @@ struct Node {
 };
 
 constexpr size_t NODE_SIZE = sizeof(ASTNode::Node);
+
+auto ast_dump_node_ident(std::ostream&, size_t) -> const void;
+auto ast_dump_node(std::ostream&, List<Node>&, const NodePrecision _ptr, const size_t) -> const void;
+
 
 } // namespace ASTNode
 } // namespace Voltt

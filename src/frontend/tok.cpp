@@ -10,7 +10,7 @@ auto dump(std::ostream& _os, const Token& _tok, const char* _source) -> void
 	_os << "  word: " << word << '\n';
 	_os << "  offset: " << _tok.offset << '\n';
 	_os << "  end: " << _tok.end << '\n';
-	_os << "  line: " << _tok.line << '\n';
+	_os << "  line: " << _tok.line+1 << '\n';
 	_os << "  col: " << _tok.col << '\n';
 	_os << "}\n";
 
@@ -35,7 +35,7 @@ auto dump_errctx(const Tok::Token& _tok, const char* _source, const char* _fname
 		.m_end = _tok.end,
 		.m_line_start = line_start,
 		.m_line_end = line_end,
-		.m_line = _tok.line-1,
+		.m_line = _tok.line,
 		.m_fname = _fname,
 		.m_fd_contents = _source,
 	};
